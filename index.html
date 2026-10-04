@@ -3,73 +3,149 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Radar de Precios Chile</title>
 
 <style>
+*{box-sizing:border-box}
 body{
-  font-family:Arial,sans-serif;
-  background:#0b1220;
-  color:white;
   margin:0;
   padding:20px;
+  font-family:Arial,sans-serif;
+  background:#0b1220;
+  color:#fff;
 }
-
 .container{
   max-width:700px;
   margin:auto;
 }
-
 h1{
-  color:#38bdf8;
   margin-bottom:5px;
+  font-size:30px;
 }
-
 .sub{
-  color:#94a3b8;
+  color:#9fb0c8;
   margin-bottom:25px;
 }
-
 .card{
-  background:#111c30;
+  background:#162033;
+  border:1px solid #2a3a55;
+  border-radius:16px;
   padding:20px;
-  border-radius:14px;
-  margin-bottom:20px;
+  margin-bottom:18px;
 }
-
-input{
-  width:100%;
-  box-sizing:border-box;
-  padding:13px;
-  margin:6px 0;
-  border-radius:8px;
-  border:1px solid #334155;
-  background:#0f172a;
-  color:white;
-  font-size:16px;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  margin-top:10px;
-  border:0;
-  border-radius:8px;
-  background:#0284c7;
-  color:white;
-  font-size:16px;
+label{
+  display:block;
+  margin-bottom:8px;
   font-weight:bold;
 }
-
-.resultado{
-  margin-top:20px;
-  padding:18px;
+input{
+  width:100%;
+  padding:14px;
+  margin-bottom:15px;
   border-radius:10px;
-  background:#172033;
+  border:1px solid #40516d;
+  background:#0d1728;
+  color:white;
+  font-size:16px;
+}
+button{
+  width:100%;
+  padding:15px;
+  border:0;
+  border-radius:10px;
+  background:#18a999;
+  color:white;
+  font-weight:bold;
+  font-size:17px;
+  cursor:pointer;
+}
+.resultado{
+  margin-top:18px;
+  padding:15px;
+  background:#0d1728;
+  border-radius:10px;
   display:none;
 }
-
 .alerta{
-  color:#4ade80;
-  font-size:22px;
-  font-weight
+  color:#ffcc66;
+  font-weight:bold;
+}
+small{color:#91a4c0}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🔎 Radar de Precios Chile</h1>
+<div class="sub">Detector de posibles outliers negativos de precio</div>
+
+<div class="card">
+  <label>Producto</label>
+  <input id="producto" placeholder="Ej: parlante JBL">
+
+  <label>Precio encontrado ($)</label>
+  <input id="precio" type="number" placeholder="Ej: 29990">
+
+  <label>Precio habitual aproximado ($)</label>
+  <input id="normal" type="number" placeholder="Ej: 79990">
+
+  <button onclick="analizar()">Analizar precio</button>
+
+  <div id="resultado" class="resultado"></div>
+</div>
+
+<div class="card">
+  <strong>¿Qué detecta?</strong>
+  <p>
+    Compara el precio encontrado con un precio habitual y calcula
+    cuánto se aleja hacia abajo.
+  </p>
+  <small>
+    Una diferencia grande puede ser una oferta real, liquidación
+    o posible error de precio. Siempre hay que verificar antes de comprar.
+  </small>
+</div>
+
+</div>
+
+<script>
+function analizar(){
+  const producto=document.getElementById("producto").value || "Producto";
+  const precio=parseFloat(document.getElementById("precio").value);
+  const normal=parseFloat(document.getElementById("normal").value);
+  const r=document.getElementById("resultado");
+
+  if(!precio || !normal || precio<=0 || normal<=0){
+    r.style.display="block";
+    r.innerHTML="⚠️ Ingresa ambos precios.";
+    return;
+  }
+
+  const diferencia=((normal-precio)/normal)*100;
+
+  let nivel="Precio dentro de un rango relativamente normal.";
+  let clase="";
+
+  if(diferencia>=30){
+    nivel="🔥 Precio llamativamente bajo.";
+    clase="alerta";
+  }
+
+  if(diferencia>=50){
+    nivel="🚨 OUTLIER NEGATIVO: revisar inmediatamente.";
+    clase="alerta";
+  }
+
+  r.style.display="block";
+  r.innerHTML=
+    "<strong>"+producto+"</strong><br><br>"+
+    "Precio encontrado: $"+precio.toLocaleString("es-CL")+"<br>"+
+    "Precio habitual: $"+normal.toLocaleString("es-CL")+"<br>"+
+    "Diferencia: <strong>"+diferencia.toFixed(1)+"% más barato</strong><br><br>"+
+    '<span class="'+clase+'">'+nivel+"</span>";
+}
+</script>
+
+</body>
+</html>
